@@ -56,11 +56,13 @@ public class CoreDataFeedStore: FeedStore {
             [context] in
 
             do {
-                if let cache = try ManagedCache.fetch(with: context) {
-                    completion(.found(feed: cache.managedFeeds.map(\.model), timestamp: cache.timestamp))
-                } else {
-                    completion(.empty)
-                }
+                completion(
+                    try ManagedCache.fetch(with: context)
+                        .map{
+                            cache in
+                            .found(feed: cache.managedFeeds.map(\.model), timestamp: cache.timestamp)
+                        } ?? .empty
+                )
             } catch {
                 completion(.failure(error))
             }
