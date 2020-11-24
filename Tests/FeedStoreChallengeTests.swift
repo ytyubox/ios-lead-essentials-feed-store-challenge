@@ -33,7 +33,6 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 
 	func test_retrieve_deliversFoundValuesOnNonEmptyCache() {
 		let sut = makeSUT()
-
 		assertThatRetrieveDeliversFoundValuesOnNonEmptyCache(on: sut)
 	}
 
@@ -94,7 +93,8 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT() -> FeedStore {
-    let sut = CoreDataFeedStore()
+    let testURL = URL(fileURLWithPath: "/dev/null")
+    let sut = CoreDataFeedStore(url: testURL)
     return sut
 	}
 	

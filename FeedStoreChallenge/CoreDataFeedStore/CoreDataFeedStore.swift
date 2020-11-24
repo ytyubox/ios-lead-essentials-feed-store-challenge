@@ -13,9 +13,17 @@ public class CoreDataFeedStore: FeedStore {
     typealias Object = ManagedCache
     private let container: NSPersistentContainer
     private lazy var context: NSManagedObjectContext = container.newBackgroundContext()
-    public init() {
+    public init(url: URL) {
         let model = CoreDataFeedStoreObjectModel()
         container = InnerContainer(name: MODELNAME, managedObjectModel: model)
+        let description = NSPersistentStoreDescription(url: url)
+        description.shouldAddStoreAsynchronously = false
+        container.persistentStoreDescriptions = [description]
+        container.loadPersistentStores { (_, error) in
+            if let error = error {
+            fatalError("Development mistake: Persistent store load failure: \(error)")
+            }
+        }
     }
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
         
@@ -53,9 +61,9 @@ public class CoreDataFeedStore: FeedStore {
     
     // MARK: - Inner
     private class InnerContainer: NSPersistentContainer{
-//        override class func defaultDirectoryURL() -> URL {
-//            super.defaultDirectoryURL().appendingPathComponent("CoreDataFeedStore")
-//        }
+        override class func defaultDirectoryURL() -> URL {
+            super.defaultDirectoryURL().appendingPathComponent("CoreDataFeedStore")
+        }
     }
 }
 
@@ -68,7 +76,7 @@ extension ManagedCache {
 }
 extension ManagedFeedImage {
     var model: LocalFeedImage {
-        LocalFeedImage(id: id, description: description, location: location, url: url)
+        LocalFeedImage(id: id, description: imageDescription, location: location, url: url)
     }
 }
 // MARK: - Model relation
