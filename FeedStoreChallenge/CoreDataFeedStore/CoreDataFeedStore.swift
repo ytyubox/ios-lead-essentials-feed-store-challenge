@@ -29,8 +29,7 @@ public class CoreDataFeedStore: FeedStore {
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
         context.perform {
             [context] in
-            try! ManagedCache
-                .fetch(with: context)
+            try! context.fetch(ManagedCache.self)
                 .map(context.delete)
                 .map(context.save)
             completion(nil)
@@ -38,10 +37,10 @@ public class CoreDataFeedStore: FeedStore {
     }
 
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-        context.perform { [context] in
+        context.perform { [self, context] in
             do {
-                try ManagedCache.createUniqueInstance(with: (feed, timestamp), in: context)
-
+                try context.fetch(ManagedCache.self).map(context.delete)
+                createManagedCache(with: (feed, timestamp), in: context)
                 try context.save()
                 completion(nil)
             } catch {
@@ -57,7 +56,7 @@ public class CoreDataFeedStore: FeedStore {
 
             do {
                 completion(
-                    try ManagedCache.fetch(with: context)
+                    try context.fetch(ManagedCache.self)
                         .map{
                             cache in
                             .found(feed: cache.managedFeeds.map(\.model), timestamp: cache.timestamp)
@@ -68,7 +67,12 @@ public class CoreDataFeedStore: FeedStore {
             }
         }
     }
-
+    
+    private func createManagedCache(with data: (feed: [LocalFeedImage], timestamp: Date), in context: NSManagedObjectContext) {
+        
+        _ = ManagedCache(timestamp: data.timestamp, feed: data.feed, in: context)
+        
+    }
 }
 
 extension ManagedCache {
