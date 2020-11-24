@@ -11,8 +11,8 @@ import Foundation
 
 func CoreDataFeedStoreObjectModel() -> NSManagedObjectModel {
     let m = NSManagedObjectModel()
-    let feed = feedEntity()
-    let cache = cacheEntity(entity: feed)
+    let feed = ManagedFeedImage.entityDescription()
+    let cache = ManagedCache.entityDescription(destinationEntity: feed)
     m.entities = [
         cache,
         feed,
@@ -20,33 +20,15 @@ func CoreDataFeedStoreObjectModel() -> NSManagedObjectModel {
     return m
 }
 
-private func cacheEntity(entity destinationEntity: NSEntityDescription) -> NSEntityDescription {
-    entity(name: "ManagedCache", propertys: [
-        property(name: "timestamp", attributeType: .dateAttributeType),
-
-        relation(name: "feed", isOrdered: true, destinationEntity: destinationEntity),
-    ])
-}
-
-private func feedEntity() -> NSEntityDescription {
-    entity(name: "ManagedFeedImage",
-           propertys: [
-               property(name: "id", attributeType: .UUIDAttributeType),
-               property(name: "imageDescription", isOptional: true, attributeType: .stringAttributeType),
-               property(name: "location", isOptional: true, attributeType: .stringAttributeType),
-               property(name: "url", attributeType: .URIAttributeType),
-           ])
-}
-
-private func entity(name: String, propertys: [NSPropertyDescription]) -> NSEntityDescription {
+// MARK: - Model description helpers
+func entity(name: String, propertys: [NSPropertyDescription]) -> NSEntityDescription {
     let entity = NSEntityDescription()
     entity.name = name
     entity.managedObjectClassName = name
     entity.properties = propertys
     return entity
 }
-
-private func relation(
+func relation(
     name: String,
     isOrdered: Bool,
     destinationEntity: NSEntityDescription
@@ -61,7 +43,7 @@ private func relation(
     return relation
 }
 
-private func property(
+func property(
     name: String,
     isOptional: Bool = false,
     attributeType: NSAttributeType,

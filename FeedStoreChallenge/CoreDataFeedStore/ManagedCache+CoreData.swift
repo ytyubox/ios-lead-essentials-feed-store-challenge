@@ -18,6 +18,15 @@ import Foundation
 
 @objc(ManagedCache)
 public class ManagedCache: NSManagedObject {
+    static func entityDescription(
+        destinationEntity: NSEntityDescription) -> NSEntityDescription {
+        FeedStoreChallenge.entity(name: "ManagedCache", propertys: [
+            property(name: "timestamp", attributeType: .dateAttributeType),
+            
+            relation(name: "feed", isOrdered: true, destinationEntity: destinationEntity),
+        ])
+    }
+    
     
     @nonobjc class func fetchRequest() -> NSFetchRequest<ManagedCache> {
         return NSFetchRequest<ManagedCache>(entityName: "ManagedCache")

@@ -18,6 +18,15 @@ import Foundation
 
 @objc(ManagedFeedImage)
 class ManagedFeedImage: NSManagedObject {
+    static func entityDescription() -> NSEntityDescription {
+        FeedStoreChallenge.entity(name: "ManagedFeedImage",
+               propertys: [
+                property(name: "id", attributeType: .UUIDAttributeType),
+                property(name: "imageDescription", isOptional: true, attributeType: .stringAttributeType),
+                property(name: "location", isOptional: true, attributeType: .stringAttributeType),
+                property(name: "url", attributeType: .URIAttributeType),
+               ])
+    }
     @nonobjc class func fetchRequest() -> NSFetchRequest<ManagedFeedImage> {
         return NSFetchRequest<ManagedFeedImage>(entityName: "ManagedFeedImage")
     }
