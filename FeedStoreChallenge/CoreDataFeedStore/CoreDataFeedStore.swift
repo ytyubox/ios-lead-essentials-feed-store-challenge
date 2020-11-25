@@ -10,7 +10,6 @@ import CoreData
 import Foundation
 private let MODELNAME = "CoreDataFeedStore"
 public class CoreDataFeedStore: FeedStore {
-    typealias Object = ManagedCache
     private let container: NSPersistentContainer
     private lazy var context: NSManagedObjectContext = container.newBackgroundContext()
     public init(url: URL) {
@@ -74,8 +73,7 @@ public class CoreDataFeedStore: FeedStore {
         
     }
 }
-
-extension ManagedCache {
+private extension ManagedCache {
     var managedFeeds: [ManagedFeedImage] {
         feed.compactMap {
             $0 as? ManagedFeedImage
@@ -83,7 +81,7 @@ extension ManagedCache {
     }
 }
 
-extension ManagedFeedImage {
+private extension ManagedFeedImage {
     var model: LocalFeedImage {
         LocalFeedImage(id: id, description: imageDescription, location: location, url: url)
     }
