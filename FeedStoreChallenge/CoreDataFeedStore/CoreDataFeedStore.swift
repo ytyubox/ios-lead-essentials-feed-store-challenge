@@ -15,9 +15,7 @@ public class CoreDataFeedStore: FeedStore {
     public init(url: URL) {
         let model = CoreDataFeedStoreObjectModel()
         container = NSPersistentContainer(name: MODELNAME, managedObjectModel: model)
-        let description = NSPersistentStoreDescription(url: url)
-        description.shouldAddStoreAsynchronously = false
-        container.persistentStoreDescriptions = [description]
+        container.persistentStoreDescriptions = [coreDataStoreDescription(url: url)]
         container.loadPersistentStores { _, error in
             if let error = error {
                 fatalError("Development mistake: Persistent store load failure: \(error)")
@@ -72,6 +70,12 @@ public class CoreDataFeedStore: FeedStore {
         _ = ManagedCache(timestamp: data.timestamp, feed: data.feed, in: context)
         
     }
+}
+private func coreDataStoreDescription(url: URL) -> NSPersistentStoreDescription {
+    let description = NSPersistentStoreDescription(url: url)
+    description.shouldAddStoreAsynchronously = false
+    return description
+
 }
 private extension ManagedCache {
     var managedFeeds: [ManagedFeedImage] {
