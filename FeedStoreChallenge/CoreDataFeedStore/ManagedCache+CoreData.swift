@@ -21,7 +21,7 @@ public final class ManagedCache: NSManagedObject {
     @NSManaged var timestamp: Date
     @NSManaged var feed: NSOrderedSet
     
-    convenience init (timestamp: Date, feed: [LocalFeedImage], in context: NSManagedObjectContext)  {
+    convenience init (feed: [LocalFeedImage], timestamp: Date, in context: NSManagedObjectContext)  {
         self.init(context: context)
         self.feed = NSOrderedSet(array: feed.map{ManagedFeedImage(with: $0, in: context)})
         self.timestamp = timestamp

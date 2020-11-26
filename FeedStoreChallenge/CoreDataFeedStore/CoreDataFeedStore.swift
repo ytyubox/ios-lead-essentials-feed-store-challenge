@@ -34,10 +34,11 @@ public class CoreDataFeedStore: FeedStore {
     }
 
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-        context.perform { [self, context] in
+        context.perform {
+            [context] in
             do {
                 try context.fetch(ManagedCache.self).map(context.delete)
-                createManagedCache(with: (feed, timestamp), in: context)
+                _ = context.createManagedCache(feed: feed, timestamp: timestamp)
                 try context.save()
                 completion(nil)
             } catch {
@@ -65,10 +66,11 @@ public class CoreDataFeedStore: FeedStore {
         }
     }
     
-    private func createManagedCache(with data: (feed: [LocalFeedImage], timestamp: Date), in context: NSManagedObjectContext) {
-        
-        _ = ManagedCache(timestamp: data.timestamp, feed: data.feed, in: context)
-        
+}
+private
+extension NSManagedObjectContext {
+    func createManagedCache(feed: [LocalFeedImage], timestamp: Date) -> ManagedCache {
+        ManagedCache(feed: feed, timestamp: timestamp, in: self)
     }
 }
 private func coreDataStoreDescription(url: URL) -> NSPersistentStoreDescription {
