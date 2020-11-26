@@ -9,12 +9,12 @@
 import CoreData
 import Foundation
 private let MODELNAME = "CoreDataFeedStore"
+private let MODEL = CoreDataFeedStoreObjectModel()
 public class CoreDataFeedStore: FeedStore {
     private let container: NSPersistentContainer
     private lazy var context: NSManagedObjectContext = container.newBackgroundContext()
     public init(url: URL) {
-        let model = CoreDataFeedStoreObjectModel()
-        container = NSPersistentContainer(name: MODELNAME, managedObjectModel: model)
+        container = NSPersistentContainer(name: MODELNAME, managedObjectModel: MODEL)
         container.persistentStoreDescriptions = [coreDataStoreDescription(url: url)]
         container.loadPersistentStores { _, error in
             if let error = error {
