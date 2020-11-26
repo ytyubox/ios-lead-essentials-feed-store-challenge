@@ -46,8 +46,7 @@ func relation(
 func property(
     name: String,
     isOptional: Bool = false,
-    attributeType: NSAttributeType,
-    usesScalarValueType _: Bool = false
+    attributeType: NSAttributeType 
 ) -> NSPropertyDescription {
     let p = NSAttributeDescription()
     p.name = name
