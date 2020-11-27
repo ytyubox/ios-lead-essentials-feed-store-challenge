@@ -9,9 +9,6 @@
 import Foundation
 import GRDB
 
-
-
-import GRDB
 public class GRDBFeedStore: FeedStore {
     let dbQueue: DatabaseQueue
     public init() throws {
@@ -26,7 +23,7 @@ public class GRDBFeedStore: FeedStore {
     
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
         try? dbQueue.write({ (db) in
-            var cache = GRDBCache(timestamp: timestamp.timeIntervalSince1970)
+            var cache = GRDBCache(timestamp: timestamp.timeIntervalSinceReferenceDate)
             try cache.insert(db)
             var feeds = feed.map(GRDBFeedImage.init)
             for i in feeds.indices {
@@ -51,7 +48,7 @@ public class GRDBFeedStore: FeedStore {
                     .all()
                     .fetchAll(db)
                     .map(localFeed(_:))
-                completion(.found(feed: feed, timestamp: Date(timeIntervalSince1970: cache.timestamp)))
+                completion(.found(feed: feed, timestamp: Date(timeIntervalSinceReferenceDate: cache.timestamp)))
             })
         } catch {
             completion(.failure(error))
