@@ -94,7 +94,6 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT() -> FeedStore {
-//    let testURL = URL(fileURLWithPath: "/dev/null")
     return try! GRDBFeedStore()
 	}
 	
