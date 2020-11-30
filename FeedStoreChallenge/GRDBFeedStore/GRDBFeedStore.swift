@@ -22,17 +22,23 @@ public class GRDBFeedStore: FeedStore {
     }
     
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-        try? dbQueue.write({ (db) in
-            var cache = GRDBCache(timestamp: timestamp.timeIntervalSinceReferenceDate)
-            try cache.insert(db)
-            var feeds = feed.map(GRDBFeedImage.init)
-            for i in feeds.indices {
-                feeds[i].cache_id = cache.id
-                try feeds[i].insert(db)
-            }
-            
-            completion(nil)
-        })
+        do {
+            try dbQueue.write({ (db) in
+                try GRDBFeedImage.deleteAll(db)
+                try GRDBCache.deleteAll(db)
+                var cache = GRDBCache(timestamp: timestamp.timeIntervalSinceReferenceDate)
+                try cache.insert(db)
+                var feeds = feed.map(GRDBFeedImage.init)
+                for i in feeds.indices {
+                    feeds[i].cache_id = cache.id
+                    try feeds[i].insert(db)
+                }
+                
+                completion(nil)
+            })
+        } catch {
+            completion(error)
+        }
         
         
     }
