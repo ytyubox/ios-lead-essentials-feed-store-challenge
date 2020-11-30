@@ -31,9 +31,9 @@ class FeedStoreIntegrationTests: XCTestCase {
     }
     
     func test_retrieve_deliversEmptyOnEmptyCache() {
-//        let sut = makeSUT()
-//
-//        expect(sut, toRetrieve: .empty)
+        let sut = makeSUT()
+
+        expect(sut, toRetrieve: .empty)
     }
 
     func test_retrieve_deliversFeedInsertedOnAnotherInstance() {
@@ -76,15 +76,24 @@ class FeedStoreIntegrationTests: XCTestCase {
     // - MARK: Helpers
     
     private func makeSUT() -> FeedStore {
-        fatalError("Must be implemented")
+        let sut = try! GRDBFeedStore(path: testSpecificStoreURL().path)
+        return sut
+    }
+    private func testSpecificStoreURL() throws -> URL {
+        try FileManager.default
+            .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            .appendingPathComponent("db.sqlite")
     }
     
     private func setupEmptyStoreState() {
-
+        try? removeTestPersistenceState()
     }
 
     private func undoStoreSideEffects() {
-
+        try? removeTestPersistenceState()
     }
     
+    private func removeTestPersistenceState() throws {
+        try FileManager.default.removeItem(at: testSpecificStoreURL())
+    }
 }

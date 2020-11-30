@@ -11,7 +11,7 @@ import GRDB
 
 public class GRDBFeedStore: FeedStore {
     let dbQueue: DatabaseQueue
-    public init() throws {
+    public init(path: String?) throws {
         let config = feedImageConfiguration()
         dbQueue = DatabaseQueue(configuration: config)
         let migrator = feedImageMigrator()

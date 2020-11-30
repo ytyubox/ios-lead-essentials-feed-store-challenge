@@ -94,7 +94,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT() -> FeedStore {
-    return try! GRDBFeedStore()
+    return try! GRDBFeedStore(path: nil)
 	}
 	
 }
