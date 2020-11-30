@@ -18,7 +18,11 @@ public class GRDBFeedStore: FeedStore {
         try migrator.migrate(dbQueue)
     }
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-        
+        try? dbQueue.write({ (db) in
+            try GRDBFeedImage.deleteAll(db)
+            try GRDBCache.deleteAll(db)
+            completion(nil)
+        })
     }
     
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
