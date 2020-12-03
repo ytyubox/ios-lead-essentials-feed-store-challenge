@@ -84,6 +84,7 @@
 				08CE2B8C2285BBD100183A1B /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 1;
 		};
 		08CE2B8C2285BBD100183A1B /* Products */ = {
 			isa = PBXGroup;
