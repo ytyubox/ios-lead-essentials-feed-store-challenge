@@ -48,17 +48,18 @@ class FeedStoreIntegrationTests: XCTestCase {
     }
    
     func test_insert_overridesFeedInsertedOnAnotherInstance() {
-//        let storeToInsert = makeSUT()
-//        let storeToOverride = makeSUT()
-//        let storeToLoad = makeSUT()
-//
-//        insert((uniqueImageFeed(), Date()), to: storeToInsert)
-//
-//        let latestFeed = uniqueImageFeed()
-//        let latestTimestamp = Date()
-//        insert((latestFeed, latestTimestamp), to: storeToOverride)
-//
-//        expect(storeToLoad, toRetrieve: .found(feed: latestFeed, timestamp: latestTimestamp))
+        let manager = DBQueueFactory()
+        let storeToInsert = makeSUT(dbmanager: manager)
+        let storeToOverride = makeSUT(dbmanager: manager)
+        let storeToLoad = makeSUT(dbmanager: manager)
+
+        insert((uniqueImageFeed(), Date()), to: storeToInsert)
+
+        let latestFeed = uniqueImageFeed()
+        let latestTimestamp = Date()
+        insert((latestFeed, latestTimestamp), to: storeToOverride)
+
+        expect(storeToLoad, toRetrieve: .found(feed: latestFeed, timestamp: latestTimestamp))
     }
     
     func test_delete_deletesFeedInsertedOnAnotherInstance() {
