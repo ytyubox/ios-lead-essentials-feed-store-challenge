@@ -9,13 +9,19 @@
 import Foundation
 import GRDB
 
+
+
 public class GRDBFeedStore: FeedStore {
-    let dbQueue: DatabaseQueue
-    public init(path: String?) throws {
-        let config = feedImageConfiguration()
-        dbQueue = DatabaseQueue(configuration: config)
-        let migrator = feedImageMigrator()
-        try migrator.migrate(dbQueue)
+    
+    internal let dbQueue: DatabaseQueue
+    private var dbManeger: DBQueueManager
+    
+    public init(path: String?, dbManeger: DBQueueManager) throws {
+        self.dbManeger = dbManeger
+        dbQueue = try dbManeger.makeQueue(path: path)
+    }
+    deinit {
+        dbManeger.recylcle(queue: dbQueue)
     }
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
         try? dbQueue.write({ (db) in
@@ -24,15 +30,14 @@ public class GRDBFeedStore: FeedStore {
             completion(nil)
         })
     }
-    
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
+        var cache = GRDBCache(timestamp: timestamp.timeIntervalSinceReferenceDate)
+        var feeds = feed.map(GRDBFeedImage.init)
         do {
             try dbQueue.write({ (db) in
                 try GRDBFeedImage.deleteAll(db)
                 try GRDBCache.deleteAll(db)
-                var cache = GRDBCache(timestamp: timestamp.timeIntervalSinceReferenceDate)
                 try cache.insert(db)
-                var feeds = feed.map(GRDBFeedImage.init)
                 for i in feeds.indices {
                     feeds[i].cache_id = cache.id
                     try feeds[i].insert(db)
@@ -43,8 +48,6 @@ public class GRDBFeedStore: FeedStore {
         } catch {
             completion(error)
         }
-        
-        
     }
     
     public func retrieve(completion: @escaping RetrievalCompletion) {
@@ -53,7 +56,9 @@ public class GRDBFeedStore: FeedStore {
                 guard let cache = try GRDBCache
                         .all()
                         .fetchOne(db)
-                else { return completion(.empty)}
+                else {
+                    return completion(.empty)
+                }
                 let feed = try GRDBFeedImage
                     .all()
                     .fetchAll(db)
@@ -64,37 +69,8 @@ public class GRDBFeedStore: FeedStore {
             completion(.failure(error))
         }
     }
-    
-    
 }
 
-private func feedImageConfiguration() -> Configuration {
-    var config = Configuration()
-    config.prepareDatabase { (db) in
-        db.trace {print("SQL>",$0)}
-    }
-    return config
-}
-private func feedImageMigrator() -> DatabaseMigrator {
-    var migrator = DatabaseMigrator()
-    migrator.registerMigration("createFeedStore") {
-        db in
-        try db.create(table: "grdbCache", body: { (t) in
-            t.autoIncrementedPrimaryKey("id")
-            t.column("timestamp", .date).notNull()
-        })
-        try db.create(table: "grdbFeedimage", body: { (t) in
-            t.column("id", .text).notNull()
-            t.column("imageDescription", .text)
-            t.column("location", .text)
-            t.column("url", .text).notNull()
-            t.column("cache_id", .integer)
-                .notNull()
-                .references("grdbCache")
-        })
-    }
-    return migrator
-}
 
 private extension GRDBFeedImage {
     init(localFeedImage: LocalFeedImage) {

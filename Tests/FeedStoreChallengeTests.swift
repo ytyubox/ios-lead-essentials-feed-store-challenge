@@ -93,8 +93,14 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 	// - MARK: Helpers
 	
-	private func makeSUT() -> FeedStore {
-    return try! GRDBFeedStore(path: nil)
-	}
-	
+	private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> FeedStore {
+    let dbmanager = DBQueueFactory()
+    let sut = try! GRDBFeedStore(path: nil, dbManeger: dbmanager)
+    addTeardownBlock { [weak sut, weak dbmanager] in
+        XCTAssertNil(sut, file: file, line: line)
+        XCTAssertNil(dbmanager, file: file, line: line)
+    }
+    return sut
+  }
+    
 }

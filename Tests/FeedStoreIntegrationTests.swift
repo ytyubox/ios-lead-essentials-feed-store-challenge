@@ -37,16 +37,16 @@ class FeedStoreIntegrationTests: XCTestCase {
     }
 
     func test_retrieve_deliversFeedInsertedOnAnotherInstance() {
-//        let storeToInsert = makeSUT()
-//        let storeToLoad = makeSUT()
-//        let feed = uniqueImageFeed()
-//        let timestamp = Date()
-//
-//        insert((feed, timestamp), to: storeToInsert)
-//
-//        expect(storeToLoad, toRetrieve: .found(feed: feed, timestamp: timestamp))
+        let manager = DBQueueFactory()
+        let storeToInsert = makeSUT(dbmanager: manager)
+        let storeToLoad = makeSUT(dbmanager: manager)
+        let feed = uniqueImageFeed()
+        let timestamp = Date()
+        XCTAssertNil(insert((feed, timestamp), to: storeToInsert))
+
+        expect(storeToLoad, toRetrieve: .found(feed: feed, timestamp: timestamp))
     }
-    
+   
     func test_insert_overridesFeedInsertedOnAnotherInstance() {
 //        let storeToInsert = makeSUT()
 //        let storeToOverride = makeSUT()
@@ -75,8 +75,11 @@ class FeedStoreIntegrationTests: XCTestCase {
     
     // - MARK: Helpers
     
-    private func makeSUT() -> FeedStore {
-        let sut = try! GRDBFeedStore(path: testSpecificStoreURL().path)
+    private func makeSUT(dbmanager: DBQueueManager = DBQueueFactory(), file: StaticString = #filePath, line: UInt = #line) -> FeedStore {
+        let sut = try! GRDBFeedStore(path: testSpecificStoreURL().path, dbManeger: dbmanager)
+        addTeardownBlock { [weak sut] in
+            XCTAssertNil(sut, file: file, line: line)
+        }
         return sut
     }
     private func testSpecificStoreURL() throws -> URL {
@@ -97,3 +100,19 @@ class FeedStoreIntegrationTests: XCTestCase {
         try FileManager.default.removeItem(at: testSpecificStoreURL())
     }
 }
+@testable import FeedStoreChallenge
+extension FeedStoreIntegrationTests {
+    func test_DatabaseQueueWillReleaseAfterAllDependentedFeedStoreRelease() {
+        let dbManager =  DBQueueFactory()
+        var store1: FeedStore? = makeSUT(dbmanager: dbManager)
+        var store2: FeedStore? = makeSUT(dbmanager: dbManager)
+        weak var dbQueue = (store1 as? GRDBFeedStore)?.dbQueue
+        XCTAssertNotNil(dbQueue)
+        store1 = nil
+        XCTAssertNotNil(dbQueue)
+        store2 = nil
+        XCTAssertNil(store2) // fix warning of: Variable 'store2' was written to, but never read
+        XCTAssertNil(dbQueue)
+    }
+}
+
