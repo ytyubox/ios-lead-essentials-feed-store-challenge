@@ -55,6 +55,7 @@ public class DBQueueFactory: DBQueueManager {
                 t.column("timestamp", .date).notNull()
             })
             try db.create(table: "grdbFeedimage", body: { (t) in
+                t.autoIncrementedPrimaryKey("feedImage_id")
                 t.column("id", .text).notNull()
                 t.column("imageDescription", .text)
                 t.column("location", .text)

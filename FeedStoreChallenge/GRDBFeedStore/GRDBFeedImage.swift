@@ -21,7 +21,11 @@ struct GRDBFeedImage: Codable {
     var location: String?
     var url: URL
     var cache_id: Int64? = nil
+    var feedImage_id: Int64? = nil
 }
 extension GRDBFeedImage: TableRecord, FetchableRecord, MutablePersistableRecord {
     static let cache = belongsTo(GRDBCache.self)
+    mutating func didInsert(with rowID: Int64, for column: String?) {
+        feedImage_id = rowID
+    }
 }
