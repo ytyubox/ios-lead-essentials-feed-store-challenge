@@ -22,12 +22,16 @@ public class GRDBFeedStore: FeedStore {
     deinit {
 		Self.dbQueueFactory.recylcle(queue: dbQueue)
     }
-    public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-        try? dbQueue.write({ (db) in
-            try GRDBFeedImage.deleteAll(db)
-            try GRDBCache.deleteAll(db)
-            completion(nil)
-        })
+	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
+		do {
+			try dbQueue.write({ (db) in
+				try GRDBFeedImage.deleteAll(db)
+				try GRDBCache.deleteAll(db)
+				completion(nil)
+			})
+		} catch {
+			completion(error)
+		}
     }
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
         var cache = GRDBCache(timestamp: timestamp.timeIntervalSinceReferenceDate)
