@@ -17,7 +17,14 @@ public class DBQueueFactory {
             return dbQueue
         }
         let config = feedImageConfiguration()
-		let dbQueue = DatabaseQueue(configuration: config)
+		
+		let dbQueue: DatabaseQueue
+		if let path = path {
+			dbQueue = try DatabaseQueue(path: path, configuration: config)
+		}
+		else {
+			dbQueue = DatabaseQueue(configuration: config)
+		}
         let migrator = feedImageMigrator()
         try migrator.migrate(dbQueue)
         pool[path] = (1, dbQueue)
