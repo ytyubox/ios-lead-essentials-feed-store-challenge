@@ -7,12 +7,8 @@
 //
 
 import GRDB
-public protocol DBQueueManager {
-    func makeQueue(path: String?) throws -> DatabaseQueue
-    func recylcle(queue: DatabaseQueue)
-}
 
-public class DBQueueFactory: DBQueueManager {
+public class DBQueueFactory {
     public init() {}
     private var pool:[String?: (count:Int,dbQueue: DatabaseQueue)] = [:]
     public func makeQueue(path: String?) throws -> DatabaseQueue {
@@ -21,7 +17,7 @@ public class DBQueueFactory: DBQueueManager {
             return dbQueue
         }
         let config = feedImageConfiguration()
-        let dbQueue = DatabaseQueue(configuration: config)
+		let dbQueue = DatabaseQueue(configuration: config)
         let migrator = feedImageMigrator()
         try migrator.migrate(dbQueue)
         pool[path] = (1, dbQueue)

@@ -27,15 +27,14 @@ class FeedStoreIntegrationTests: XCTestCase {
     }
     
     func test_retrieve_deliversEmptyOnEmptyCache() {
-        let sut = makeSUT(dbQueueManager: DBQueueFactory())
+        let sut = makeSUT()
 
         expect(sut, toRetrieve: .empty)
     }
 
     func test_retrieve_deliversFeedInsertedOnAnotherInstance() {
-        let manager = DBQueueFactory()
-        let storeToInsert = makeSUT(dbQueueManager: manager)
-        let storeToLoad = makeSUT(dbQueueManager: manager)
+        let storeToInsert = makeSUT()
+        let storeToLoad = makeSUT()
         let feed = uniqueImageFeed()
         let timestamp = Date()
         XCTAssertNil(insert((feed, timestamp), to: storeToInsert))
@@ -44,10 +43,9 @@ class FeedStoreIntegrationTests: XCTestCase {
     }
    
     func test_insert_overridesFeedInsertedOnAnotherInstance() {
-        let manager = DBQueueFactory()
-        let storeToInsert = makeSUT(dbQueueManager:  manager)
-        let storeToOverride = makeSUT(dbQueueManager: manager)
-        let storeToLoad = makeSUT(dbQueueManager: manager)
+        let storeToInsert = makeSUT()
+        let storeToOverride = makeSUT()
+        let storeToLoad = makeSUT()
 
         insert((uniqueImageFeed(), Date()), to: storeToInsert)
 
@@ -59,10 +57,9 @@ class FeedStoreIntegrationTests: XCTestCase {
     }
     
     func test_delete_deletesFeedInsertedOnAnotherInstance() {
-        let manager = DBQueueFactory()
-        let storeToInsert = makeSUT(dbQueueManager: manager)
-        let storeToDelete = makeSUT(dbQueueManager: manager)
-        let storeToLoad = makeSUT(dbQueueManager: manager)
+        let storeToInsert = makeSUT()
+        let storeToDelete = makeSUT()
+        let storeToLoad = makeSUT()
 
         insert((uniqueImageFeed(), Date()), to: storeToInsert)
 
@@ -73,8 +70,8 @@ class FeedStoreIntegrationTests: XCTestCase {
     
     // - MARK: Helpers
     
-    private func makeSUT(dbQueueManager: DBQueueManager, file: StaticString = #filePath, line: UInt = #line) -> FeedStore {
-        let sut = try! GRDBFeedStore(path: testSpecificStoreURL().path, dbManeger: dbQueueManager)
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> FeedStore {
+        let sut = try! GRDBFeedStore(path: testSpecificStoreURL().path)
         addTeardownBlock { [weak sut] in
             XCTAssertNil(sut, file: file, line: line)
         }
@@ -101,9 +98,9 @@ class FeedStoreIntegrationTests: XCTestCase {
 @testable import FeedStoreChallenge
 extension FeedStoreIntegrationTests {
     func test_DatabaseQueueWillReleaseAfterAllDependentedFeedStoreRelease() {
-        let dbManager =  DBQueueFactory()
-        var store1: FeedStore? = makeSUT(dbQueueManager: dbManager)
-        var store2: FeedStore? = makeSUT(dbQueueManager: dbManager)
+		
+        var store1: FeedStore? = makeSUT()
+        var store2: FeedStore? = makeSUT()
         weak var dbQueue = (store1 as? GRDBFeedStore)?.dbQueue
         XCTAssertNotNil(dbQueue)
         store1 = nil

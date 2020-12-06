@@ -14,14 +14,13 @@ import GRDB
 public class GRDBFeedStore: FeedStore {
     
     internal let dbQueue: DatabaseQueue
-    private var dbManeger: DBQueueManager
+    private static let dbQueueFactory: DBQueueFactory = DBQueueFactory()
     
-    public init(path: String?, dbManeger: DBQueueManager) throws {
-        self.dbManeger = dbManeger
-        dbQueue = try dbManeger.makeQueue(path: path)
+    public init(path: String?) throws {
+		dbQueue = try Self.dbQueueFactory.makeQueue(path: path)
     }
     deinit {
-        dbManeger.recylcle(queue: dbQueue)
+		Self.dbQueueFactory.recylcle(queue: dbQueue)
     }
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
         try? dbQueue.write({ (db) in
